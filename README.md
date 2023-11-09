@@ -10,15 +10,19 @@ Also implemented a class if that is preferrable to use.
 
 Input is a `JPG/PNG` image, which is processed to detect individual characters/letters. The input image should be taken with evenly distributed light on the paper.
 
-Will need to optimize the image processing for the appropriate size of the text in the photo.
+Perhaps need to optimize the image processing for the appropriate size of the text in the photo.
 
 The processing can be improved by adjusting paramaters:
 
 - kernel size
 - dilation iterations
 
-Should the output images be of equal resolution?
-Then output images should also be converted into a dataformat like `.mat` or `.csv`
+TODO:
+
+- Filter to get rid of shadows?
+- Remove red rectangles from output images
+- Should the output images be of equal resolution?
+- Then output images should also be converted into a dataformat like `.mat` or `.csv`
 
 # Conda Environment
 
