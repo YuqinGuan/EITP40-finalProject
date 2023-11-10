@@ -4,8 +4,6 @@
 
 Run [`script.py`](/script.py) which will detect characters from image by running [`char_detection.py`](/char_detection.py).
 
-Also implemented a class if that is preferrable to use.
-
 ## Image Processing
 
 Input is a `JPG/PNG` image, which is processed to detect individual characters/letters. The input image should be taken with evenly distributed light on the paper.
@@ -20,8 +18,8 @@ The processing can be improved by adjusting paramaters:
 TODO:
 
 - Filter to get rid of shadows?
+- Transform all output images to the same resolution (padding)
 - Remove red rectangles from output images
-- Should the output images be of equal resolution?
 - Then output images should also be converted into a dataformat like `.mat` or `.csv`
 
 # Conda Environment
