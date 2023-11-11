@@ -1,2 +1,2 @@
-/data/output/images/chars/*.jpg
-/data/output/images/processing/*.jpg
+/ImageProcessing/output/chars/*.jpg
+/ImageProcessing/output/processing/*.jpg

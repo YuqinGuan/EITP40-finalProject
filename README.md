@@ -2,7 +2,7 @@
 
 # Data Collection
 
-Run [`script.py`](/script.py) which will detect characters from image by running [`char_detection.py`](/char_detection.py).
+In directory `/ImageProcessing`: Run [`script.py`](/ImageProcessing/script.py) which will detect characters from image by running [`image_processing.py`](/ImageProcessing/image_processing.py).
 
 ## Image Processing
 
@@ -20,7 +20,10 @@ TODO:
 - Filter to get rid of shadows?
 - Transform all output images to the same resolution (padding)
 - Remove red rectangles from output images
-- Then output images should also be converted into a dataformat like `.mat` or `.csv`
+
+## Collect all images in dataset
+
+Store all images in dataset [here](/ImageProcessing/output/data/) - output images should be converted into a dataformat like `.npy`
 
 # Conda Environment
 
