@@ -1,7 +1,6 @@
 #from ImageProcessing.image_processing import detect_chars
 #from collection_class import DataCollection
 from image_processing import detect_chars, transform_images
-from data_collection import store_data
 import numpy as np
 
 ## Image processing and detecting individual characters
