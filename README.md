@@ -8,22 +8,15 @@ In directory `/ImageProcessing`: Run [`script.py`](/ImageProcessing/script.py) w
 
 Input is a `JPG/PNG` image, which is processed to detect individual characters/letters. The input image should be taken with evenly distributed light on the paper.
 
-Perhaps need to optimize the image processing for the appropriate size of the text in the photo.
+At the top of the file [`image_processing.py`](/ImageProcessing/image_processing.py) you can configure if you want to apply the shadow filter or not and change the parameters kernel size and dilation iterations.
 
-The processing can be improved by adjusting paramaters:
-
-- kernel size
-- dilation iterations
-
-TODO:
-
-- Filter to get rid of shadows?
-- Transform all output images to the same resolution (padding)
-- Remove red rectangles from output images
+The detected characters are stored in [`ImageProcessing/output/chars`](/ImageProcessing/output/) as JPG files. Then all images are transformed (reshaped) into the same resolution.
 
 ## Collect all images in dataset
 
-Store all images in dataset [here](/ImageProcessing/output/data/) - output images should be converted into a dataformat like `.npy`
+After all images of the detected characters are reshaped into the same resolution and stored in [`ImageProcessing/output/reshaped_chars`](/ImageProcessing/output/reshaped_chars/), the numpy array is saved [here](/ImageProcessing/output/data/) as a `.npy` file.
+
+One can load and plot a random character by running the notebook [`plot_char.ipynb`](/ImageProcessing/plot_char.ipynb).
 
 # Conda Environment
 
@@ -34,3 +27,4 @@ Store all images in dataset [here](/ImageProcessing/output/data/) - output image
 ## Packages
 
 - `conda install -c conda-forge opencv` or `pip install opencv-python`
+- `pip install Pillow`

@@ -1,2 +1,3 @@
 /ImageProcessing/output/chars/*.jpg
+/ImageProcessing/output/reshaped_chars/*.jpg
 /ImageProcessing/output/processing/*.jpg
