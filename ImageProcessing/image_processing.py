@@ -178,5 +178,5 @@ def transform_images():
         #print("Reshaped image: ", reshaped_char.shape)
         char_dataset[i] = reshaped_char
         i += 1
-    
+        
     return char_dataset

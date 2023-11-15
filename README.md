@@ -14,7 +14,7 @@ The detected characters are stored in [`ImageProcessing/output/chars`](/ImagePro
 
 ## Collect all images in dataset
 
-After all images of the detected characters are reshaped into the same resolution and stored in [`ImageProcessing/output/reshaped_chars`](/ImageProcessing/output/reshaped_chars/), the numpy array is saved [here](/ImageProcessing/output/data/) as a `.npy` file.
+After all images of the detected characters are reshaped into the same resolution and stored in [`ImageProcessing/output/reshaped_chars`](/ImageProcessing/output/reshaped_chars/), the numpy array is saved [here](/data/) as a `.npy` file.
 
 One can load and plot a random character by running the notebook [`plot_char.ipynb`](/ImageProcessing/plot_char.ipynb).
 
@@ -28,3 +28,4 @@ One can load and plot a random character by running the notebook [`plot_char.ipy
 
 - `conda install -c conda-forge opencv` or `pip install opencv-python`
 - `pip install Pillow`
+- `pip install scipy`
