@@ -7,6 +7,7 @@ from skimage import io, color
 ## Configs
 DEV_MODE = False
 SHADOW = True
+MIN_AREA = 250
 if SHADOW:
     # When using shadow filter
     kernel1 = (4,1)
@@ -72,19 +73,47 @@ def process(image, kernel_size, iter):
     return gray, shadow_norm, thresh, img_dilation, ctrs
 
 
-def sub_roi(roi, index, char_path):
-    _,_,sub_thresh,_,ctrs = process(roi, (2,2), iter=iter2)
-    sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
-    for i, ctr in enumerate(sorted_ctrs):
+# def sub_roi(roi, index, char_path):
+#     _,_,sub_thresh,_,ctrs = process(roi, kernel2, iter=iter2)
+#     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+#     for i, ctr in enumerate(sorted_ctrs):
+#         x,y,w,h = cv2.boundingRect(ctr)
+#         area = cv2.contourArea(ctr)
+#         #print(f"Sub ROI {index+i}")
+#         if area > 200:
+#             # sub_roi = roi[y:y+h, x:x+w]
+#             sub_roi = sub_thresh[y:y+h, x:x+w]
+#             if DEV_MODE: cv2.rectangle(roi, (x,y), (x+w,y+h), (250,10,90), 2)
+#             name = char_path + '/subROI_' + str(index+i) + '.jpg'
+#             cv2.imwrite(name, sub_roi)  
+
+def sort_contours(ctrs):
+    # Calculate maximum rectangle height
+    heights = []
+    for i, ctr in enumerate(ctrs):
+        _,_,_,h = cv2.boundingRect(ctr)
+        heights.append(h)
+    max_height = np.max(heights)
+
+    ## Sort based on y offset
+    sorted_ctrs_by_y = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[1])
+    # First y
+    line_y = cv2.boundingRect(sorted_ctrs_by_y[0])[1]
+    line = 1
+    by_line = []
+
+    # Assign line number to each contour
+    for ctr in sorted_ctrs_by_y:
         x,y,w,h = cv2.boundingRect(ctr)
-        area = cv2.contourArea(ctr)
-        #print(f"Sub ROI {index+i}")
-        if area > 200:
-            # sub_roi = roi[y:y+h, x:x+w]
-            sub_roi = sub_thresh[y:y+h, x:x+w]
-            if DEV_MODE: cv2.rectangle(roi, (x,y), (x+w,y+h), (250,10,90), 2)
-            name = char_path + '/subROI_' + str(index+i) + '.jpg'
-            cv2.imwrite(name, sub_roi)            
+        if y > line_y + max_height:
+            line_y = y
+            line += 1
+        by_line.append((line, x,y,w,h))
+
+    # This will now sort automatically by line then by x
+    contours_sorted = [(x, y, w, h) for line, x, y, w, h in sorted(by_line)]
+    return contours_sorted
+
 
 def detect_chars(input_image_path, output_path):
     assert(isinstance(output_path, str))
@@ -95,30 +124,31 @@ def detect_chars(input_image_path, output_path):
     image = cv2.imread(input_image_path)
     # Process input image
     gray, shadow_norm, thresh, img_dilation, ctrs = process(image, kernel1, iter=iter1)
-    sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
-
-    for i, ctr in enumerate(sorted_ctrs):
+    sorted_ctrs = sort_contours(ctrs)
+    
+    k = 0 
+    for entry in sorted_ctrs: 
+    #for i, ctr in enumerate(sorted_ctrs_by_y):
         # Get bounding box
-        x,y,w,h = cv2.boundingRect(ctr)
+        #x,y,w,h = cv2.boundingRect(ctr)
+        x,y,w,h = entry
+        #print(f"{i}: ", x,y,w,h)
         # Getting ROI
-        roi = image[y:y+h, x:x+w]
-
         binary_roi = thresh[y:y+h,x:x+w]
-        area = cv2.contourArea(ctr)
+        area = w*h
         # Avoid noise and small ROIs
-        if area > 250:
-            #print(f"{i}: area={area}, width={w}")
-            if w > 65:
-                # Process sub-ROI image
-                sub_roi(roi, i, char_path)
-            else:
-                if DEV_MODE:
-                    # Draw rectangles in image for ROIs
-                    color = (90,0,255)
-                    cv2.rectangle(image, (x,y), (x+w, y+h), color, 2)
-                # Save ROI as image
-                filename = char_path + '/ROI_' + str(i) + '.jpg'
-                cv2.imwrite(filename, binary_roi)
+        if area > MIN_AREA:
+            # if w > 65:
+            #     # Process sub-ROI image
+            #     sub_roi(roi, i, char_path)
+            # else:
+            # if DEV_MODE:
+            color = (90,0,255)
+            cv2.rectangle(image, (x,y), (x+w, y+h), color, 2)
+            # Save ROI as image
+            filename = char_path + '/ROI_' + str(k) + '.jpg'
+            cv2.imwrite(filename, binary_roi)
+            k += 1
 
     if DEV_MODE:
         # show images
@@ -143,12 +173,13 @@ def transform_images():
     widths = []
     heights = []
     samples = 0
-    for img in os.scandir('output/chars'):
-        char_img = Image.open(img.path)
+    char_directory = os.listdir('output/chars')
+    sorted_char_dir = sorted([int(x.split('_')[1].split('.')[0]) for x in char_directory])
+    
+    for img_number in sorted_char_dir:
+        char_img = Image.open('output/chars/ROI_'+str(img_number)+'.jpg')
         # convert image to numpy array
         char_data = np.asarray(char_img)
-        #print(char_data.shape[0:2], img.path)
-        #h,w,channels = char_data.shape[0:3]
         h,w = char_data.shape[0:2]
         widths.append(w)
         heights.append(h)
@@ -157,7 +188,6 @@ def transform_images():
     # Largest height and width
     max_w = np.max(widths)
     max_h = np.max(heights)
-
     # Padding of images to all be of shape (max_w, max_h)
     new_w = max_w
     new_h = max_h
@@ -166,17 +196,17 @@ def transform_images():
     #char_dataset = np.zeros((samples, new_h, new_w, channels))
     char_dataset = np.zeros((samples, new_h, new_w))
     i = 0
-    for img in os.scandir('output/chars'):
+    for img_number in sorted_char_dir:
         reshaped_char = np.full((new_h, new_w), 0, dtype=np.uint8)
-        char_data = cv2.imread(img.path)
+        char_data = cv2.imread('output/chars/ROI_'+str(img_number)+'.jpg')
         gray_char = color.rgb2gray(char_data)*255
 
-        filename = img.path.split('/')[2]
+        filename = 'ROI_'+str(img_number)+'.jpg'
         h, w = gray_char.shape
         x_c = (max_w - w) // 2
         y_c = (max_h - h) // 2
 
-        # copy img image into center of result image
+        # Copy img image into center of result image
         reshaped_char[y_c:y_c+h, x_c:x_c+w] = gray_char
         cv2.imwrite("output/reshaped_chars/" + filename, reshaped_char)
         #print("Reshaped image: ", reshaped_char.shape)
