@@ -2,6 +2,7 @@ import cv2
 from PIL import Image
 import numpy as np
 import os
+from skimage import io, color
 
 ## Configs
 DEV_MODE = False
@@ -72,14 +73,15 @@ def process(image, kernel_size, iter):
 
 
 def sub_roi(roi, index, char_path):
-    _,_,_,_,ctrs = process(roi, (2,2), iter=iter2)
+    _,_,sub_thresh,_,ctrs = process(roi, (2,2), iter=iter2)
     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
     for i, ctr in enumerate(sorted_ctrs):
         x,y,w,h = cv2.boundingRect(ctr)
         area = cv2.contourArea(ctr)
         #print(f"Sub ROI {index+i}")
         if area > 200:
-            sub_roi = roi[y:y+h, x:x+w]
+            # sub_roi = roi[y:y+h, x:x+w]
+            sub_roi = sub_thresh[y:y+h, x:x+w]
             if DEV_MODE: cv2.rectangle(roi, (x,y), (x+w,y+h), (250,10,90), 2)
             name = char_path + '/subROI_' + str(index+i) + '.jpg'
             cv2.imwrite(name, sub_roi)            
@@ -100,6 +102,8 @@ def detect_chars(input_image_path, output_path):
         x,y,w,h = cv2.boundingRect(ctr)
         # Getting ROI
         roi = image[y:y+h, x:x+w]
+
+        binary_roi = thresh[y:y+h,x:x+w]
         area = cv2.contourArea(ctr)
         # Avoid noise and small ROIs
         if area > 250:
@@ -114,7 +118,7 @@ def detect_chars(input_image_path, output_path):
                     cv2.rectangle(image, (x,y), (x+w, y+h), color, 2)
                 # Save ROI as image
                 filename = char_path + '/ROI_' + str(i) + '.jpg'
-                cv2.imwrite(filename, roi)
+                cv2.imwrite(filename, binary_roi)
 
     if DEV_MODE:
         # show images
@@ -143,7 +147,8 @@ def transform_images():
         # convert image to numpy array
         char_data = np.asarray(char_img)
         #print(char_data.shape[0:2], img.path)
-        h,w,channels = char_data.shape[0:3]
+        #h,w,channels = char_data.shape[0:3]
+        h,w = char_data.shape[0:2]
         widths.append(w)
         heights.append(h)
         samples += 1
@@ -151,29 +156,27 @@ def transform_images():
     # Largest height and width
     max_w = np.max(widths)
     max_h = np.max(heights)
-    #print(max_w, max_h, channels)
 
     # Padding of images to all be of shape (max_w, max_h)
     new_w = max_w
     new_h = max_h
 
     # Initialize dataset to store all images represented as arrays
-    char_dataset = np.zeros((samples, new_h, new_w, channels))
+    #char_dataset = np.zeros((samples, new_h, new_w, channels))
+    char_dataset = np.zeros((samples, new_h, new_w))
     i = 0
     for img in os.scandir('output/chars'):
-        # Extract color of image in pixel (0,0)
-        r,g,b = char_data[0,0,:]
-        bg_color = (r,g,b)
-        reshaped_char = np.full((new_h, new_w, channels), bg_color, dtype=np.uint8)
+        reshaped_char = np.full((new_h, new_w), 0, dtype=np.uint8)
         char_data = cv2.imread(img.path)
-        
+        gray_char = color.rgb2gray(char_data)*255
+
         filename = img.path.split('/')[2]
-        h, w, channels = char_data.shape
+        h, w = gray_char.shape
         x_c = (max_w - w) // 2
         y_c = (max_h - h) // 2
 
         # copy img image into center of result image
-        reshaped_char[y_c:y_c+h, x_c:x_c+w] = char_data
+        reshaped_char[y_c:y_c+h, x_c:x_c+w] = gray_char
         cv2.imwrite("output/reshaped_chars/" + filename, reshaped_char)
         #print("Reshaped image: ", reshaped_char.shape)
         char_dataset[i] = reshaped_char

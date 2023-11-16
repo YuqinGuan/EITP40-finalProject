@@ -8,7 +8,7 @@ detect_chars('input/test4.jpg', 'output')
 
 ## Transform ROI images of characters to be of uniform size (resolution)
 characters_dataset = transform_images()
-print("Char datset shape: ", characters_dataset.shape)
+print("Char dataset shape: ", characters_dataset.shape)
 print(type(characters_dataset))
 
 ## Save and store images in .npy dataset
