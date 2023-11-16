@@ -29,3 +29,4 @@ One can load and plot a random character by running the notebook [`plot_char.ipy
 - `conda install -c conda-forge opencv` or `pip install opencv-python`
 - `pip install Pillow`
 - `pip install scipy`
+- `pip install scikit-image`
