@@ -138,6 +138,7 @@ def detect_chars(input_image_path, output_path):
     
 
 def transform_images():
+    clear_dir('output/reshaped_chars')
     # Iterate through all images in chars directory
     widths = []
     heights = []

@@ -18,6 +18,8 @@ After all images of the detected characters are reshaped into the same resolutio
 
 One can load and plot a random character by running the notebook [`plot_char.ipynb`](/ImageProcessing/plot_char.ipynb).
 
+NOTE: The detected images are not stored in the correct order as in the input photo. It seems that it begins with the left-most character, making it store the left-most letters of the text first. This may be a problem.
+
 # Conda Environment
 
 - `conda create --name <env-name>`
