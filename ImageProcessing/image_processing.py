@@ -167,7 +167,7 @@ def detect_chars(input_image_path, output_path):
     save_image(image, 'Result')
     
 
-def transform_images():
+def transform_collect_images():
     clear_dir('output/reshaped_chars')
     # Iterate through all images in chars directory
     widths = []

@@ -2,4 +2,4 @@
 /ImageProcessing/output/reshaped_chars/*.jpg
 /ImageProcessing/output/processing/*.jpg
 
-/data/*.mat
+/data/training/*.mat
