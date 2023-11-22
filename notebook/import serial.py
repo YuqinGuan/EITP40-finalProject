@@ -14,11 +14,11 @@ import binascii
 width=144
 height=176
 
-def convertToImage(HEXADECIMAL_BYTES):
+def convertToImage(imageList):
     
     # Reformat the bytes into an image
-    raw_bytes = np.array(HEXADECIMAL_BYTES, dtype="i2")
-    print(raw_bytes)
+    raw_bytes = np.array(imageList, dtype="i2")
+    #print(len(raw_bytes))
     image = np.zeros((len(raw_bytes),3), dtype=int)
 
     # Loop through all of the pixels and form the image
@@ -37,18 +37,9 @@ def convertToImage(HEXADECIMAL_BYTES):
     # Show the image
     plt.imshow(image)
     plt.show()
+    plt.savefig('figure.jpg')
+    
 
-def v2(HEXADECIMAL_BYTES):
-    raw_bytes = np.array(HEXADECIMAL_BYTES, dtype="i2")
-    print(raw_bytes)
-    return Image.frombytes("L", (width, height), HEXADECIMAL_BYTES, decoder_name="xbm")
-
-
-def v3(HEXADECIMAL_BYTES):
-    raw_bytes = np.array(HEXADECIMAL_BYTES, dtype="i2")
-    print(raw_bytes)
-    img = Image.frombuffer('L', (242,266), HEXADECIMAL_BYTES, 'raw', 'L', 0, 1)
-    return img
 
 
 def mapToArray(HEXADECIMAL_BYTES):
@@ -59,32 +50,39 @@ def mapToArray(HEXADECIMAL_BYTES):
 def main():
     
     ser = serial.Serial("COM4", 9600)
-    
+    ser.flushInput()
+    ser.flushOutput()
     while True:
+        
+        
+        cc=str(ser.readline())
+        #print("String: \n {}\n".format(cc))
+        f = open("file.txt", "w")
+        HEXADECIMAL_BYTES=cc[2:][:-5]
+        
+        #print("HEX: \n {}\n".format(cc))
+        #print("HEX length {}".format(len(HEXADECIMAL_BYTES)))
+        
+        stringlist=HEXADECIMAL_BYTES.split(",")
+        print("stringlist length is : {}".format(len(stringlist)))
+        hex_list=[]
+        for x in stringlist:
+            hex_int = int(x, 16)
+            hex_list.append(hex_int)
+        print(type(hex_list[0]))
+        f.writelines(HEXADECIMAL_BYTES)
+        f.write("\n")
+        f.close()
         ser.flushInput()
         ser.flushOutput()
         
-        cc=str(ser.readline())
-        print("String: \n {}\n".format(cc))
-        HEXADECIMAL_BYTES=cc[2:][:-5]
-        test=bytes(HEXADECIMAL_BYTES, 'utf-8')
-        print("HEX: \n {}\n".format(cc))
-        print("HEX length {}".format(len(HEXADECIMAL_BYTES)))
-        #imageArray= mapToArray( HEXADECIMAL_BYTES)
+        convertToImage(hex_list)
         #img=v3(imageArray)
         #draw = ImageDraw.Draw(img)
-        #img.show()
+      
         #r_data = binascii.unhexlify(data)
         #r_data = "".unhexlify(chr(int(b_data[i:i+2],16)) for i in range(0, len(b_data),2))
-        r_data = binascii.unhexlify(test)
-        stream = io.BytesIO(r_data)
 
-        img = Image.open(stream)
-        draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype("arial.ttf",14)
-        draw.text((0, 220),"This is a test11",(255,255,0),font=font)
-        draw = ImageDraw.Draw(img)
-        img.save("a_test.png")
     #cc=str(ser.readline())
     #print("String: \n {}\n".format(cc))
     #print("String length :{}".format(len(cc)))
