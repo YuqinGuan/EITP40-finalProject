@@ -72,7 +72,6 @@ def process(image, kernel_size, iter):
     ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return gray, shadow_norm, thresh, img_dilation, ctrs
 
-
 # def sub_roi(roi, index, char_path):
 #     _,_,sub_thresh,_,ctrs = process(roi, kernel2, iter=iter2)
 #     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
@@ -88,6 +87,7 @@ def process(image, kernel_size, iter):
 #             cv2.imwrite(name, sub_roi)  
 
 def sort_contours(ctrs):
+    # Sort contours in reading order
     # Calculate maximum rectangle height
     heights = []
     for i, ctr in enumerate(ctrs):
@@ -120,6 +120,7 @@ def detect_chars(input_image_path, output_path):
     assert(isinstance(input_image_path, str))
     char_path = output_path + '/chars'
     clear_dir(char_path)
+    clear_dir('output/reshaped_chars')
     
     image = cv2.imread(input_image_path)
     # Process input image
@@ -168,7 +169,6 @@ def detect_chars(input_image_path, output_path):
     
 
 def transform_collect_images():
-    clear_dir('output/reshaped_chars')
     # Iterate through all images in chars directory
     widths = []
     heights = []
@@ -193,10 +193,8 @@ def transform_collect_images():
     new_h = max_h
 
     # Initialize dataset to store all images represented as arrays
-    #char_dataset = np.zeros((samples, new_h, new_w, channels))
     char_dataset = np.zeros((samples, new_h, new_w))
-    i = 0
-    for img_number in sorted_char_dir:
+    for i, img_number in enumerate(sorted_char_dir):
         reshaped_char = np.full((new_h, new_w), 0, dtype=np.uint8)
         char_data = cv2.imread('output/chars/ROI_'+str(img_number)+'.jpg')
         gray_char = color.rgb2gray(char_data)*255
@@ -211,6 +209,5 @@ def transform_collect_images():
         cv2.imwrite("output/reshaped_chars/" + filename, reshaped_char)
         #print("Reshaped image: ", reshaped_char.shape)
         char_dataset[i] = reshaped_char
-        i += 1
         
     return char_dataset
