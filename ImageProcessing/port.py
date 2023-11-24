@@ -10,9 +10,10 @@ from PIL import ImageFont
 import urllib.request
 import io
 import binascii
+import sys, getopt
+import argparse
 
-width=144
-height=176
+
 
 def convertToImage(imageList):
     
@@ -44,8 +45,8 @@ def convertToImage(imageList):
 
 
 def main():
-    
-    ser = serial.Serial("COM6", 9600)
+    #print(args.port)
+    ser = serial.Serial("/dev/ttyACM0", 9600)
     ser.flushInput()
     ser.flushOutput()
     while True:
@@ -76,4 +77,7 @@ def main():
 
 
 if __name__ == "__main__":
+    #argParser = argparse.ArgumentParser()
+    #argParser.add_argument("port", help="which port will be connected to")
+    #args=argParser.parse_args()
     main()
