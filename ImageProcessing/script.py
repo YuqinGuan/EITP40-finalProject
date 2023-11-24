@@ -1,8 +1,14 @@
 from image_processing import detect_chars, transform_collect_images
 import numpy as np
+import argparse
+from port import main
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument("port", help="which port will be connected to")
+args=argParser.parse_args()
 
 ## Load HEX_BYTES and save as JPG image
-# TODO
+main(args)
 
 ## Load the saved image and use its path for the detect_chars() command
 # TODO

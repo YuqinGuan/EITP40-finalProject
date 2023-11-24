@@ -25,7 +25,7 @@ One can load and plot a random character by running the notebook [`plot_char.ipy
 
 ## Store image taken by OV7675 Camera
 
-TODO
+Run port.py by python port.py ##port number
 
 # Conda Environment
 
@@ -39,3 +39,4 @@ TODO
 - `pip install Pillow`
 - `pip install scipy`
 - `pip install scikit-image`
+- `pip install pyserial`

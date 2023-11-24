@@ -4,6 +4,7 @@ import numpy as np
 import struct
 import io
 import base64
+from matplotlib import cm
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -34,19 +35,21 @@ def convertToImage(imageList):
         image[i] = [r,g,b]
 
     image = np.reshape(image,(144, 176,3)) #QCIF resolution
-
+    pic = Image.fromarray(np.uint8(cm.gist_earth(image)))
+    pic.save("input/fig.jpg")
     # Show the image
     plt.imshow(image)
-    plt.show()
-    plt.savefig('output/figure.jpg')
+  
+    #plt.show()
+    #plt.savefig('input')
     
 
 
 
 
-def main():
-    #print(args.port)
-    ser = serial.Serial("/dev/ttyACM0", 9600)
+def main(args):
+    print(args.port)
+    ser = serial.Serial(args.port, 9600)
     ser.flushInput()
     ser.flushOutput()
     while True:
@@ -77,7 +80,7 @@ def main():
 
 
 if __name__ == "__main__":
-    #argParser = argparse.ArgumentParser()
-    #argParser.add_argument("port", help="which port will be connected to")
-    #args=argParser.parse_args()
-    main()
+    argParser = argparse.ArgumentParser()
+    argParser.add_argument("port", help="which port will be connected to")
+    args=argParser.parse_args()
+    main(args)
