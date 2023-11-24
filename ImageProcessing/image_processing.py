@@ -72,7 +72,6 @@ def process(image, kernel_size, iter):
     ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return gray, shadow_norm, thresh, img_dilation, ctrs
 
-
 # def sub_roi(roi, index, char_path):
 #     _,_,sub_thresh,_,ctrs = process(roi, kernel2, iter=iter2)
 #     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
@@ -88,6 +87,7 @@ def process(image, kernel_size, iter):
 #             cv2.imwrite(name, sub_roi)  
 
 def sort_contours(ctrs):
+    # Sort contours in reading order
     # Calculate maximum rectangle height
     heights = []
     for i, ctr in enumerate(ctrs):
@@ -120,6 +120,7 @@ def detect_chars(input_image_path, output_path):
     assert(isinstance(input_image_path, str))
     char_path = output_path + '/chars'
     clear_dir(char_path)
+    clear_dir('output/padded_chars')
     
     image = cv2.imread(input_image_path)
     # Process input image
@@ -143,9 +144,10 @@ def detect_chars(input_image_path, output_path):
             #     sub_roi(roi, i, char_path)
             # else:
             # if DEV_MODE:
+            # Draw red rectangles on original image
             color = (90,0,255)
             cv2.rectangle(image, (x,y), (x+w, y+h), color, 2)
-            # Save ROI as image
+            # Save ROI as image, using the binary thresh image
             filename = char_path + '/ROI_' + str(k) + '.jpg'
             cv2.imwrite(filename, binary_roi)
             k += 1
@@ -168,7 +170,6 @@ def detect_chars(input_image_path, output_path):
     
 
 def transform_collect_images():
-    clear_dir('output/reshaped_chars')
     # Iterate through all images in chars directory
     widths = []
     heights = []
@@ -193,11 +194,11 @@ def transform_collect_images():
     new_h = max_h
 
     # Initialize dataset to store all images represented as arrays
-    #char_dataset = np.zeros((samples, new_h, new_w, channels))
-    char_dataset = np.zeros((samples, new_h, new_w))
-    i = 0
-    for img_number in sorted_char_dir:
-        reshaped_char = np.full((new_h, new_w), 0, dtype=np.uint8)
+    # char_dataset = np.zeros((samples, new_h, new_w))
+    char_dataset = np.zeros((samples, 28, 28))
+    for i, img_number in enumerate(sorted_char_dir):
+        # Padding image into uniform shape (new_h, new_w) by 
+        padded_char = np.full((new_h, new_w), 0, dtype=np.uint8)
         char_data = cv2.imread('output/chars/ROI_'+str(img_number)+'.jpg')
         gray_char = color.rgb2gray(char_data)*255
 
@@ -206,11 +207,16 @@ def transform_collect_images():
         x_c = (max_w - w) // 2
         y_c = (max_h - h) // 2
 
-        # Copy img image into center of result image
-        reshaped_char[y_c:y_c+h, x_c:x_c+w] = gray_char
-        cv2.imwrite("output/reshaped_chars/" + filename, reshaped_char)
-        #print("Reshaped image: ", reshaped_char.shape)
-        char_dataset[i] = reshaped_char
-        i += 1
+        # Store padded image in padded_chars directory
+        padded_char[y_c:y_c+h, x_c:x_c+w] = gray_char
+        cv2.imwrite("output/padded_chars/" + filename, padded_char)
+
+        # Now resize image to desired (28,28) shape
+        image = Image.open('output/padded_chars/' + filename)
+        resized = image.resize((28,28))
+        resized.save("output/resized/" + filename)
+
+        # char_dataset[i] = padded_char
+        char_dataset[i] = resized
         
     return char_dataset

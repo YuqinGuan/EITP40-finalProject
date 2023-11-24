@@ -1,5 +1,6 @@
 /ImageProcessing/output/chars/*.jpg
-/ImageProcessing/output/reshaped_chars/*.jpg
+/ImageProcessing/output/padded_chars/*.jpg
+/ImageProcessing/output/resized/*.jpg
 /ImageProcessing/output/processing/*.jpg
 
 /data/training/*.mat
