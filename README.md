@@ -27,6 +27,8 @@ One can load and plot a random character by running the notebook [`pre_training.
 
 Run port.py by python port.py ##port number
 
+Philip's port: `/dev/cu.usbmodem1441101`
+
 # Bash script
 
 Run bash script `run.sh` to start the "pipeline".
