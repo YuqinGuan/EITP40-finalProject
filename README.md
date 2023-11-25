@@ -21,11 +21,20 @@ After all images of the detected characters are padded into a uniform resolution
 The numpy array of shape `(n_samples,28,28)` corresponding to all images is saved as a `.npy` file together with the EMNIST `.mat` dataset that we found online in [`data/training`](/data/training/).
 The resizing is necessary as it drastically decreases the siz of the `.npy` file.
 
-One can load and plot a random character by running the notebook [`plot_char.ipynb`](/ImageProcessing/plot_char.ipynb). Both for our own dataset and the EMNIST dataset. EMNIST dataset downloaded [here](https://www.nist.gov/itl/products-and-services/emnist-dataset).
+One can load and plot a random character by running the notebook [`pre_training.ipynb`](/pre_training.ipynb). Both for our own dataset and the EMNIST dataset. EMNIST dataset downloaded [here](https://www.nist.gov/itl/products-and-services/emnist-dataset).
 
 ## Store image taken by OV7675 Camera
 
 Run port.py by python port.py ##port number
+
+# Bash script
+
+Run bash script `run.sh` to start the "pipeline".
+
+To make the file executable:
+
+- Appended this line at the top of the file `#!/usr/bin/env bash` (Mac OS)
+- Change file permissions `chmod +x run.sh`
 
 # Conda Environment
 
