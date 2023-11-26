@@ -17,17 +17,14 @@ import argparse
 
 
 def convertToImage(imageList):
-    
     # Reformat the bytes into an image
     raw_bytes = np.array(imageList, dtype="i2")
     #print(len(raw_bytes))
     image = np.zeros((len(raw_bytes),3), dtype=int)
-
     # Loop through all of the pixels and form the image
     for i in range(len(raw_bytes)):
         #Read 16-bit pixel
         pixel = struct.unpack('>h', raw_bytes[i])[0]
-
         #Convert RGB565 to RGB 24-bit
         r = ((pixel >> 11) & 0x1f) << 3
         g = ((pixel >> 5) & 0x3f) << 2
@@ -35,13 +32,13 @@ def convertToImage(imageList):
         image[i] = [r,g,b]
 
     image = np.reshape(image,(144, 176,3)) #QCIF resolution
-    pic = Image.fromarray(np.uint8(cm.gist_earth(image)))
-    pic.save("input/fig.jpg")
+    #pic = Image.fromarray(np.uint8(cm.gist_earth(image)))
+    #pic.save("input/fig.jpg")
     # Show the image
+    print(image)
     plt.imshow(image)
-  
-    #plt.show()
-    #plt.savefig('input')
+    im=Image.fromarray((image).astype(np.uint8))
+    im.save("input/your_file.png")
     
 
 
@@ -52,30 +49,24 @@ def main(args):
     ser = serial.Serial(args.port, 9600)
     ser.flushInput()
     ser.flushOutput()
-    while True:
-        
-        
+    while True:  
         cc=str(ser.readline())
-        #print("String: \n {}\n".format(cc))
         f = open("file.txt", "w")
-        HEXADECIMAL_BYTES=cc[2:][:-5]
-        
-        #print("HEX: \n {}\n".format(cc))
-        #print("HEX length {}".format(len(HEXADECIMAL_BYTES)))
-        
+        HEXADECIMAL_BYTES=cc[2:][:-5] # take away header and only keep the raw data
         stringlist=HEXADECIMAL_BYTES.split(",")
         print("stringlist length is : {}".format(len(stringlist)))
+        #convert to hexdecimal list 
         hex_list=[]
         for x in stringlist:
             hex_int = int(x, 16)
             hex_list.append(hex_int)
         #print(type(hex_list[0]))
-        #f.writelines(HEXADECIMAL_BYTES)
-        #f.write("\n")
-        #f.close()
+        f.writelines(HEXADECIMAL_BYTES)
+        f.write("\n")
+        f.close()
         ser.flushInput()
         ser.flushOutput()
-        
+        # translate hex_list to image
         convertToImage(hex_list)
 
 
