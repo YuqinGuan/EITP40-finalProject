@@ -7,20 +7,22 @@ from skimage import io, color
 ## Configs
 DEV_MODE = False
 SHADOW = True
-MIN_AREA = 250
+MIN_AREA = 40 # 250 , make smaller 
+MAX_AREA = 700
+MAX_HEIGHT = 40 # This matters when sorting the contours
 if SHADOW:
     # When using shadow filter
-    kernel1 = (4,1)
-    iter1 = 3
-    kernel2 = (2,1)
-    iter2 = 2
+    kernel1 = (6,1)
+    iter1 = 1
+    # kernel2 = (2,1)
+    # iter2 = 2
     th_low, th_high = 210, 255
 else:
     # When shadow filter not applied
     kernel1 = (8,2)
     iter1 = 2
-    kernel2 = (2,1)
-    iter2 = 3
+    # kernel2 = (2,1)
+    # iter2 = 3
     th_low, th_high = 127, 255
 
 def show_image(image, title):
@@ -72,39 +74,27 @@ def process(image, kernel_size, iter):
     ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return gray, shadow_norm, thresh, img_dilation, ctrs
 
-# def sub_roi(roi, index, char_path):
-#     _,_,sub_thresh,_,ctrs = process(roi, kernel2, iter=iter2)
-#     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
-#     for i, ctr in enumerate(sorted_ctrs):
-#         x,y,w,h = cv2.boundingRect(ctr)
-#         area = cv2.contourArea(ctr)
-#         #print(f"Sub ROI {index+i}")
-#         if area > 200:
-#             # sub_roi = roi[y:y+h, x:x+w]
-#             sub_roi = sub_thresh[y:y+h, x:x+w]
-#             if DEV_MODE: cv2.rectangle(roi, (x,y), (x+w,y+h), (250,10,90), 2)
-#             name = char_path + '/subROI_' + str(index+i) + '.jpg'
-#             cv2.imwrite(name, sub_roi)  
+
 
 def sort_contours(ctrs):
     # Sort contours in reading order
     # Calculate maximum rectangle height
     heights = []
-    for i, ctr in enumerate(ctrs):
+    for ctr in ctrs:
         _,_,_,h = cv2.boundingRect(ctr)
-        heights.append(h)
+        if h < MAX_HEIGHT:
+            heights.append(h)
     max_height = np.max(heights)
 
     ## Sort based on y offset
     sorted_ctrs_by_y = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[1])
-    # First y
-    line_y = cv2.boundingRect(sorted_ctrs_by_y[0])[1]
+    line_y = cv2.boundingRect(sorted_ctrs_by_y[0])[1] # First y
     line = 1
     by_line = []
 
     # Assign line number to each contour
     for ctr in sorted_ctrs_by_y:
-        x,y,w,h = cv2.boundingRect(ctr)
+        x,y,w,h = cv2.boundingRect(ctr)        
         if y > line_y + max_height:
             line_y = y
             line += 1
@@ -121,6 +111,7 @@ def detect_chars(input_image_path, output_path):
     char_path = output_path + '/chars'
     clear_dir(char_path)
     clear_dir('output/padded_chars')
+    clear_dir('output/resized')
     
     image = cv2.imread(input_image_path)
     # Process input image
@@ -129,24 +120,17 @@ def detect_chars(input_image_path, output_path):
     
     k = 0 
     for entry in sorted_ctrs: 
-    #for i, ctr in enumerate(sorted_ctrs_by_y):
-        # Get bounding box
-        #x,y,w,h = cv2.boundingRect(ctr)
         x,y,w,h = entry
-        #print(f"{i}: ", x,y,w,h)
         # Getting ROI
         binary_roi = thresh[y:y+h,x:x+w]
+        roi = image[y:y+h,x:x+h]
         area = w*h
-        # Avoid noise and small ROIs
-        if area > MIN_AREA:
-            # if w > 65:
-            #     # Process sub-ROI image
-            #     sub_roi(roi, i, char_path)
-            # else:
-            # if DEV_MODE:
+        #print(f"{k}: width: {w}, area {area}")
+        # Avoid noise and small/large ROIs
+        if area > MIN_AREA and area < MAX_AREA:
             # Draw red rectangles on original image
             color = (90,0,255)
-            cv2.rectangle(image, (x,y), (x+w, y+h), color, 2)
+            cv2.rectangle(image, (x,y), (x+w, y+h), color, 1)
             # Save ROI as image, using the binary thresh image
             filename = char_path + '/ROI_' + str(k) + '.jpg'
             cv2.imwrite(filename, binary_roi)
