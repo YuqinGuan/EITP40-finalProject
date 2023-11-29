@@ -4,3 +4,6 @@
 /ImageProcessing/output/processing/*.jpg
 
 /data/training/*.mat
+ImageProcessing/file.txt
+file.txt
+ImageProcessing/file.txt

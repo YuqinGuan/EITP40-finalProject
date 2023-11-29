@@ -6,6 +6,7 @@
 */
 
 #include <TinyMLShield.h>
+//#include <Arduino_OV767X.h>
 #include <time.h>
 
 bool commandRecv = false; // flag used for indicating receipt of commands from serial port
@@ -13,7 +14,8 @@ bool liveFlag = false; // flag as true to live stream raw camera bytes, set as f
 bool captureFlag = false;
 
 // Image buffer;
-byte image[176 * 144 * 2]; // QCIF: 176x144 x 2 bytes per pixel (RGB565)
+// QCIF: 176x144 x 2 bytes per pixel (RGB565)
+byte image[320 * 240 * 2];//QVGA
 int bytesPerFrame;
 
 void setup() {
@@ -23,7 +25,7 @@ void setup() {
   initializeShield();
   
   // Initialize the OV7675 camera
-  if (!Camera.begin(QCIF, RGB565, 1, OV7675)) {
+  if (!Camera.begin(QVGA, RGB565, 1, OV7675)) {
     Serial.println("Failed to initialize camera");
     while (1);
   }
@@ -33,14 +35,9 @@ void setup() {
 void loop() {
   int i = 0;
   String command;
-
   bool clicked = readShieldButton();
   if (clicked) {
-    if (!liveFlag) {
-      if (!captureFlag) {
-        captureFlag = true;
-      }
-    }
+    captureFlag=true;
   }
 
   // Read incoming commands from serial monitor
@@ -55,52 +52,18 @@ void loop() {
     }
   }
 
-  // Command interpretation
-  if (commandRecv) {
-    commandRecv = false;
-    if (command == "live") {
-      Serial.println("\nRaw image data will begin streaming in 5 seconds...");
-      liveFlag = true;
-      delay(5000);
-    }
-    else if (command == "single") {
-      //Serial.println("\nCamera in single mode, type \"capture\" to initiate an image capture");
-      liveFlag = false;
-      delay(200);
-    }
-    else if (command == "capture") {
-      if (!liveFlag) {
-        if (!captureFlag) {
-          captureFlag = true;
-        }
-        delay(200);
-      }
-      else {
-        Serial.println("\nCamera is not in single mode, type \"single\" first");
-        delay(1000);
-      }
-    }
-  }
-  
-  if (liveFlag) {
+  if (captureFlag) {
+    captureFlag = false;
     Camera.readFrame(image);
-    Serial.write(image, bytesPerFrame);
-  }
-  else {
-    if (captureFlag) {
-      captureFlag = false;
-      Camera.readFrame(image);
-      for (int i = 0; i < bytesPerFrame - 1; i += 2) {
-        Serial.print("0x");
-        Serial.print(image[i+1], HEX);
-        Serial.print(image[i], HEX); 
-        if (i != bytesPerFrame - 2) {
-          Serial.print(", ");
-        }
-        
-
+    
+    for (int i = 0; i < bytesPerFrame - 1; i += 2) {
+      Serial.print("0x");
+      Serial.print(image[i+1], HEX);
+      Serial.print(image[i], HEX);
+      if (i != bytesPerFrame - 2) {
+        Serial.print(", ");
       }
-      Serial.println();
     }
-  }
+    Serial.println();
+  } 
 }

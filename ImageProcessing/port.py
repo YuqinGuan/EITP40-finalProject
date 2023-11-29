@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import serial
 from matplotlib import pyplot as plt
 import numpy as np
@@ -18,8 +19,9 @@ import argparse
 
 def convertToImage(imageList):
     # Reformat the bytes into an image
-    raw_bytes = np.array(imageList, dtype="i2")
-    #print(len(raw_bytes))
+    print("Converting")
+    raw_bytes = np.array(imageList).astype(np.uint16) #dtype="i2")
+    print(len(raw_bytes))
     image = np.zeros((len(raw_bytes),3), dtype=int)
     # Loop through all of the pixels and form the image
     for i in range(len(raw_bytes)):
@@ -31,27 +33,26 @@ def convertToImage(imageList):
         b = ((pixel >> 0) & 0x1f) << 3
         image[i] = [r,g,b]
 
-    image = np.reshape(image,(144, 176,3)) #QCIF resolution
+    image = np.reshape(image,(240,320,3)) # QVGA resolution
     #pic = Image.fromarray(np.uint8(cm.gist_earth(image)))
     #pic.save("input/fig.jpg")
     # Show the image
-    print(image)
-    plt.imshow(image)
+    print("image done")
     im=Image.fromarray((image).astype(np.uint8))
     im.save("input/your_file.png")
     
 
-
-
-
-def main(args):
-    print(args.port)
-    ser = serial.Serial(args.port, 9600)
+def main():
+    #print(args.port)
+    #ser = serial.Serial(args.port, 9600)
+    print("Init")
+    ser = serial.Serial("COM6", 9600)
     ser.flushInput()
     ser.flushOutput()
     while True:  
         cc=str(ser.readline())
-        f = open("file.txt", "w")
+        print("data received")
+        #f = open("file.txt", "w")
         HEXADECIMAL_BYTES=cc[2:][:-5] # take away header and only keep the raw data
         stringlist=HEXADECIMAL_BYTES.split(",")
         print("stringlist length is : {}".format(len(stringlist)))
@@ -61,9 +62,9 @@ def main(args):
             hex_int = int(x, 16)
             hex_list.append(hex_int)
         #print(type(hex_list[0]))
-        f.writelines(HEXADECIMAL_BYTES)
-        f.write("\n")
-        f.close()
+        #f.writelines(cc)
+        #f.write("\n")
+        #f.close()
         ser.flushInput()
         ser.flushOutput()
         # translate hex_list to image
@@ -71,7 +72,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    argParser = argparse.ArgumentParser()
-    argParser.add_argument("port", help="which port will be connected to")
-    args=argParser.parse_args()
-    main(args)
+    #argParser = argparse.ArgumentParser()
+    #argParser.add_argument("port", help="which port will be connected to")
+    #args=argParser.parse_args()
+    main()
