@@ -40,13 +40,16 @@ def convertToImage(imageList):
     print("image done")
     im=Image.fromarray((image).astype(np.uint8))
     im.save("input/your_file.png")
+    sys.exit()
     
 
 def main():
     #print(args.port)
     #ser = serial.Serial(args.port, 9600)
     print("Init")
-    ser = serial.Serial("COM6", 9600)
+    # ser = serial.Serial("COM6", 9600)
+    ser = serial.Serial(args.port, 9600)
+
     ser.flushInput()
     ser.flushOutput()
     while True:  
@@ -72,7 +75,7 @@ def main():
 
 
 if __name__ == "__main__":
-    #argParser = argparse.ArgumentParser()
-    #argParser.add_argument("port", help="which port will be connected to")
-    #args=argParser.parse_args()
+    argParser = argparse.ArgumentParser()
+    argParser.add_argument("port", help="which port will be connected to")
+    args=argParser.parse_args()
     main()

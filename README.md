@@ -19,19 +19,21 @@ The detected characters are stored in [`ImageProcessing/output/chars`](/ImagePro
 
 After all images of the detected characters are padded into a uniform resolution and stored in [`ImageProcessing/output/padded_chars`](/ImageProcessing/output/padded_chars/), they are resized into the desired shape `(28,28)` and stored in [`ImageProcessing/output/resized/`](/ImageProcessing/output/resized/).
 The numpy array of shape `(n_samples,28,28)` corresponding to all images is saved as a `.npy` file together with the EMNIST `.mat` dataset that we found online in [`data/training`](/data/training/).
-The resizing is necessary as it drastically decreases the siz of the `.npy` file.
+The resizing is necessary as it drastically decreases the size of the `.npy` file.
 
 One can load and plot a random character by running the notebook [`pre_training.ipynb`](/pre_training.ipynb). Both for our own dataset and the EMNIST dataset. EMNIST dataset downloaded [here](https://www.nist.gov/itl/products-and-services/emnist-dataset).
 
+We create a larger dataset of our own handwritten letters by concatenating multiple datasets created with individual images taken with the OV7675 camera.
+
 ## Store image taken by OV7675 Camera
 
-Run port.py by python port.py ##port number
+Run `port.py <port>` with provided port as argument.
 
 Philip's port: `/dev/cu.usbmodem1421101` (might change)
 
 # Bash script
 
-Run bash script `run.sh` to start the "pipeline".
+Run bash script `run.sh` to start the "pipeline". It will take an image, save it, then this image is processed and detected characters are stored in dataset `chars.npy`.
 
 To make the file executable:
 

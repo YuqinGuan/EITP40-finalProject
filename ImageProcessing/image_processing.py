@@ -9,7 +9,8 @@ DEV_MODE = False
 SHADOW = True
 MIN_AREA = 40 # 250 , make smaller 
 MAX_AREA = 700
-MAX_HEIGHT = 40 # This matters when sorting the contours
+MIN_HEIGHT = 10 # to avoid thin horizontal lines
+MAX_HEIGHT_SORTING = 40 # This matters when sorting the contours
 if SHADOW:
     # When using shadow filter
     kernel1 = (6,1)
@@ -82,7 +83,7 @@ def sort_contours(ctrs):
     heights = []
     for ctr in ctrs:
         _,_,_,h = cv2.boundingRect(ctr)
-        if h < MAX_HEIGHT:
+        if h < MAX_HEIGHT_SORTING:
             heights.append(h)
     max_height = np.max(heights)
 
@@ -94,7 +95,7 @@ def sort_contours(ctrs):
 
     # Assign line number to each contour
     for ctr in sorted_ctrs_by_y:
-        x,y,w,h = cv2.boundingRect(ctr)        
+        x,y,w,h = cv2.boundingRect(ctr)
         if y > line_y + max_height:
             line_y = y
             line += 1
@@ -125,9 +126,9 @@ def detect_chars(input_image_path, output_path):
         binary_roi = thresh[y:y+h,x:x+w]
         roi = image[y:y+h,x:x+h]
         area = w*h
-        #print(f"{k}: width: {w}, area {area}")
         # Avoid noise and small/large ROIs
-        if area > MIN_AREA and area < MAX_AREA:
+        if area > MIN_AREA and area < MAX_AREA and h > MIN_HEIGHT:
+            #print(f"{k}: {w,h}, area: {area}")
             # Draw red rectangles on original image
             color = (90,0,255)
             cv2.rectangle(image, (x,y), (x+w, y+h), color, 1)
