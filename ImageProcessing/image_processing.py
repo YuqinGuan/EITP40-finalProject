@@ -128,7 +128,7 @@ def detect_chars(input_image_path, output_path):
         area = w*h
         # Avoid noise and small/large ROIs
         if area > MIN_AREA and area < MAX_AREA and h > MIN_HEIGHT:
-            #print(f"{k}: {w,h}, area: {area}")
+            #print(f"{k}: (x,y)={x,y}, (w,h)={w,h}, area: {area}")
             # Draw red rectangles on original image
             color = (90,0,255)
             cv2.rectangle(image, (x,y), (x+w, y+h), color, 1)
