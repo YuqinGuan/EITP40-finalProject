@@ -53,3 +53,4 @@ To make the file executable:
 - `pip install scipy`
 - `pip install scikit-image`
 - `pip install pyserial`
+- `conda install tensorflow tensorflow-macos tensorflow-metal`
