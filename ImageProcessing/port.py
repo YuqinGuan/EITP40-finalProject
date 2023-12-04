@@ -3,13 +3,9 @@ import serial
 from matplotlib import pyplot as plt
 import numpy as np
 import struct
-import io
 import base64
 from matplotlib import cm
 from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
-import urllib.request
 import io
 import binascii
 import sys, getopt
@@ -21,7 +17,6 @@ def convertToImage(imageList):
     # Reformat the bytes into an image
     print("Converting")
     raw_bytes = np.array(imageList).astype(np.uint16) #dtype="i2")
-    print(len(raw_bytes))
     image = np.zeros((len(raw_bytes),3), dtype=int)
     # Loop through all of the pixels and form the image
     for i in range(len(raw_bytes)):
@@ -40,16 +35,13 @@ def convertToImage(imageList):
     print("image done")
     im=Image.fromarray((image).astype(np.uint8))
     im.save("input/your_file.png")
-    sys.exit()
     
 
-def main():
+def main(args):
     #print(args.port)
-    #ser = serial.Serial(args.port, 9600)
-    print("Init")
-    # ser = serial.Serial("COM6", 9600)
     ser = serial.Serial(args.port, 9600)
-
+    print("Init")
+    
     ser.flushInput()
     ser.flushOutput()
     while True:  
@@ -78,4 +70,4 @@ if __name__ == "__main__":
     argParser = argparse.ArgumentParser()
     argParser.add_argument("port", help="which port will be connected to")
     args=argParser.parse_args()
-    main()
+    main(args)
