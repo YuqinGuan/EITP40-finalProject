@@ -46,6 +46,11 @@ To make the file executable:
 - `conda activate <env-name>`
 - `kernel install --user --name=<env-name>`
 
+# Communication part
+
+- `find the path to library on linux: home/user/arduino/src
+
+
 ## Packages
 
 - `conda install -c conda-forge opencv` or `pip install opencv-python`
