@@ -35,6 +35,7 @@ def convertToImage(imageList):
     print("image done")
     im=Image.fromarray((image).astype(np.uint8))
     im.save("input/your_file.png")
+    sys.exit()
     
 
 def main(args):

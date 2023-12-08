@@ -5,7 +5,9 @@ import numpy as np
 # TODO
 
 ## Image processing and detecting individual characters
+print("before detect_chars")
 detect_chars('input/your_file.png', 'output')
+print("after")
 
 ## Transform ROI images of characters to be of uniform size (resolution)
 characters_dataset = transform_collect_images()
