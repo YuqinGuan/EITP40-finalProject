@@ -21,6 +21,11 @@ After all images of the detected characters are padded into a uniform resolution
 The numpy array of shape `(n_samples,28,28)` corresponding to all images is saved as a `.npy` file together with the EMNIST `.mat` dataset that we found online in [`data/training`](/data/training/).
 The resizing is necessary as it drastically decreases the size of the `.npy` file.
 
+### Separating each word
+
+Created separate datasets for each word in the input image. Now there will be several datasets for every input image. These are stored in [`data/test`](data/test/).
+The idea is to then store all the datasets in another folder [`data/training/words`](data/training/words) to create a larger training dataset with each word separated (this is done manually).
+
 One can load and plot a random character by running the notebook [`pre_training.ipynb`](/pre_training.ipynb). Both for our own dataset and the EMNIST dataset. EMNIST dataset downloaded [here](https://www.nist.gov/itl/products-and-services/emnist-dataset).
 
 We create a larger dataset of our own handwritten letters by concatenating multiple datasets created with individual images taken with the OV7675 camera.
@@ -49,7 +54,6 @@ To make the file executable:
 # Communication part
 
 - `find the path to library on linux: home/user/arduino/src
-
 
 ## Packages
 

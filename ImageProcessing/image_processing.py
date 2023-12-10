@@ -2,6 +2,7 @@ import cv2
 from PIL import Image
 import numpy as np
 import os
+import shutil
 from skimage import io, color
 
 ## Configs
@@ -11,6 +12,7 @@ MIN_AREA = 40 # 250 , make smaller
 MAX_AREA = 700
 MIN_HEIGHT = 10 # to avoid thin horizontal lines
 MAX_HEIGHT_SORTING = 40 # This matters when sorting the contours
+SPACE_WIDTH = 20
 if SHADOW:
     # When using shadow filter
     kernel1 = (6,1)
@@ -110,9 +112,14 @@ def detect_chars(input_image_path, output_path):
     assert(isinstance(output_path, str))
     assert(isinstance(input_image_path, str))
     char_path = output_path + '/chars'
-    clear_dir(char_path)
+    
+
+    shutil.rmtree(char_path)
+    os.mkdir(char_path)
+    #clear_dir(char_path)
     clear_dir('output/padded_chars')
     clear_dir('output/resized')
+    clear_dir('../data/test')
     
     image = cv2.imread(input_image_path)
     # Process input image
@@ -120,20 +127,34 @@ def detect_chars(input_image_path, output_path):
     sorted_ctrs = sort_contours(ctrs)
     
     k = 0 
+    prev_x = 0
+    word_i = -1
+
     for entry in sorted_ctrs: 
         x,y,w,h = entry
         # Getting ROI
         binary_roi = thresh[y:y+h,x:x+w]
-        roi = image[y:y+h,x:x+h]
+        #roi = image[y:y+h,x:x+h]
         area = w*h
         # Avoid noise and small/large ROIs
         if area > MIN_AREA and area < MAX_AREA and h > MIN_HEIGHT:
-            #print(f"{k}: (x,y)={x,y}, (w,h)={w,h}, area: {area}")
+            dx = np.abs(prev_x - x)
+            prev_x = x
+            #if k == 0: dx = 0
+            if dx >= SPACE_WIDTH:
+                ## Create separate folders for each word
+                word_i += 1
+                word_path = output_path + '/chars/word_' + str(word_i)
+                #print(word_path)
+                os.mkdir(word_path)
+
+            #print(f"{k}: (x,y)={x,y}, dx={dx}")
             # Draw red rectangles on original image
             color = (90,0,255)
             cv2.rectangle(image, (x,y), (x+w, y+h), color, 1)
             # Save ROI as image, using the binary thresh image
-            filename = char_path + '/ROI_' + str(k) + '.jpg'
+            # filename = char_path + '/ROI_' + str(k) + '.jpg'
+            filename = char_path + '/word_'+str(word_i)+'/ROI_'+str(k)+'.jpg'         
             cv2.imwrite(filename, binary_roi)
             k += 1
 
@@ -152,39 +173,15 @@ def detect_chars(input_image_path, output_path):
     save_image(thresh, 'Binary_threshold')
     save_image(img_dilation, 'Dilation_with_kernel')
     save_image(image, 'Result')
+
+
     
-
-def transform_collect_images():
-    # Iterate through all images in chars directory
-    widths = []
-    heights = []
-    samples = 0
-    char_directory = os.listdir('output/chars')
-    sorted_char_dir = sorted([int(x.split('_')[1].split('.')[0]) for x in char_directory])
-    
-    for img_number in sorted_char_dir:
-        char_img = Image.open('output/chars/ROI_'+str(img_number)+'.jpg')
-        # convert image to numpy array
-        char_data = np.asarray(char_img)
-        h,w = char_data.shape[0:2]
-        widths.append(w)
-        heights.append(h)
-        samples += 1
-
-    # Largest height and width
-    max_w = np.max(widths)
-    max_h = np.max(heights)
-    # Padding of images to all be of shape (max_w, max_h)
-    new_w = max_w
-    new_h = max_h
-
-    # Initialize dataset to store all images represented as arrays
-    # char_dataset = np.zeros((samples, new_h, new_w))
+def create_dataset(samples, sorted_char_dir, max_w, max_h, index):
     char_dataset = np.zeros((samples, 28, 28))
     for i, img_number in enumerate(sorted_char_dir):
         # Padding image into uniform shape (new_h, new_w) by 
-        padded_char = np.full((new_h, new_w), 0, dtype=np.uint8)
-        char_data = cv2.imread('output/chars/ROI_'+str(img_number)+'.jpg')
+        padded_char = np.full((max_h, max_w), 0, dtype=np.uint8)
+        char_data = cv2.imread('output/chars/word_'+str(index)+'/ROI_'+str(img_number)+'.jpg')
         gray_char = color.rgb2gray(char_data)*255
 
         filename = 'ROI_'+str(img_number)+'.jpg'
@@ -205,3 +202,46 @@ def transform_collect_images():
         char_dataset[i] = resized
         
     return char_dataset
+
+
+def transform_create_datasets():
+    # Iterate through all images in chars directory
+    widths = []
+    heights = []
+    # samples = 0
+    char_directory = os.listdir('output/chars')
+    sorted_char_dir = sorted([int(x.split('_')[1].split('.')[0]) for x in char_directory])
+    
+    samples_per_word = []
+    chars_per_word = []
+
+    for word_number in sorted_char_dir:
+        samples = 0
+        word_dir = os.listdir('output/chars/word_' + str(word_number))
+        sorted_word_dir = sorted([int(x.split('_')[1].split('.')[0]) for x in word_dir])
+        #print(sorted_word_dir)
+        chars_per_word.append(sorted_word_dir)
+
+        for img_number in sorted_word_dir:
+            char_img = Image.open('output/chars/word_'+str(word_number)+'/ROI_'+str(img_number)+'.jpg')
+            # Convert to numpy array
+            char_data = np.asarray(char_img)
+            h,w = char_data.shape[0:2]
+            widths.append(w)
+            heights.append(h)
+            samples += 1
+
+        samples_per_word.append(samples)
+
+    max_w = np.max(widths)
+    max_h = np.max(heights)
+
+    # Create dataset for each sub-folder word_i
+    datasets = []
+    for i in range(0,len(sorted_char_dir)):
+        print(f"====\nWord {i}: {chars_per_word[i]}")
+        dset = create_dataset(samples_per_word[i], chars_per_word[i], max_w, max_h, index=i)
+        datasets.append(dset)
+
+    return datasets
+    
