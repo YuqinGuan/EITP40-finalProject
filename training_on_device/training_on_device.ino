@@ -4,7 +4,7 @@
 #include<TinyMLShield.h>
 
 // NN parameters, set these yourself! 
-#define LEARNING_RATE 0.2    // The learning rate used to train your network
+#define LEARNING_RATE 0.05    // The learning rate used to train your network
 #define EPOCH 50             // The maximum number of epochs 
 #define DATA_TYPE_FlOAT      // The data type used: Set this to DATA_TYPE_DOUBLE for higher precision. However, it is better to keep this Float if you want to submit the result via BT
 
@@ -14,9 +14,9 @@ extern const int classes_cnt;
 // You define your network in NN_def
 // Right now, the network consists of three layers: 
 // 1. An input layer with the size of your input as defined in the variable first_layer_input_cnt in cnn_data.h 
-// 2. A hidden layer with 20 nodes
+// 2. A hidden layer with 35 nodes
 // 3. An output layer with as many classes as you defined in the variable classes_cnt in cnn_data.h 
-static const unsigned int NN_def[] = {first_layer_input_cnt, 30, classes_cnt};
+static const unsigned int NN_def[] = {first_layer_input_cnt,35, classes_cnt};
 
 #include "data.h"       // The data, labels and the sizes of all objects are stored here 
 #include "NN_functions.h"   // All NN functions are stored here 
@@ -31,7 +31,7 @@ void do_training() {
   // Print the weights if you want to debug 
 #if DEBUG      
   Serial.println("Now Training");
-  PRINT_WEIGHTS();
+  //PRINT_WEIGHTS();
 #endif
 
   // Print the epoch number 
@@ -92,9 +92,12 @@ void loop() {
   bool clicked = readShieldButton();
   
   if (clicked){
-    
+    int i=0;
     Serial.println("yes, we clicked the button");
-    do_training(); // Local training 
+    while(i<10){
+      do_training(); // Local training 
+      i++;
+    }
     
   }
 

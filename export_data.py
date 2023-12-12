@@ -65,11 +65,11 @@ def main():
 
     
     append_class_data(encoded_classes,len(encoded_classes),lines)# classes
-    append_label_data(training_labels,len(training_labels),"training",lines)# training labels   
+    append_label_data(training_labels,len(training_labels),"train",lines)# training labels   
 
     append_label_data(validation_labels,len(validation_labels),"validation",lines)# validation labels
 
-    append_photo_data(model_training_output,len(model_training_output),"trainig",lines)# training features
+    append_photo_data(model_training_output,len(model_training_output),"train",lines)# training features
 
     append_photo_data(model_val_output,len(model_val_output),"validation",lines)# validation features
 
