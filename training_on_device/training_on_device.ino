@@ -31,7 +31,7 @@ void do_training() {
   // Print the weights if you want to debug 
 #if DEBUG      
   Serial.println("Now Training");
-  PRINT_WEIGHTS();
+  //PRINT_WEIGHTS();
 #endif
 
   // Print the epoch number 
@@ -92,6 +92,7 @@ void loop() {
   bool clicked = readShieldButton();
   
   if (clicked){
+    int i=0;
     int i=0;
     Serial.println("yes, we clicked the button");
     while(i<10){
