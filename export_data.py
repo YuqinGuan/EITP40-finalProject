@@ -9,10 +9,10 @@ import seaborn as sns
 from keras.regularizers import l2
 import os
 
-first_layer_input_cnt = 145
+first_layer_input_cnt = 140
 
 def append_photo_data(data, data_cnt, type, lines):
-    lines.append("const float cnn_" + type + "_data[" + str(data_cnt) + "][" + str(first_layer_input_cnt) + "] = {")
+    lines.append("const float " + type + "_data[" + str(data_cnt) + "][" + str(first_layer_input_cnt) + "] = {")
     frames_str = []
     for frame in data:
         frame_values = [str(i) for i in frame]
@@ -48,21 +48,26 @@ def main():
     x = model.layers[-2].output #remove the output softmax layer shape is 145 in our case
     model = K.Model(inputs = model.input, outputs = x)
     model.summary()
-    training_data=np.load("data/training/device/X_train.npy")#104x28x28
-    validation_data=np.load("data/training/device/X_val.npy")#26x28x28
+    training_data=np.load("data/training/device/X_train.npy")
+    validation_data=np.load("data/training/device/X_val.npy")
     #test_data=[]
     model_training_output=model.predict(training_data)
+    
     model_val_output=model.predict(validation_data)
     
     chars="abcdefghijklmnopqrstuvwxyz"
 
     training_labels=np.load("data/training/device/y_train.npy") #numbers
     validation_labels=np.load("data/training/device/y_val.npy")
+    print(len(training_data))
     lines=[]
     classes=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','-']# todo: convert to numberse
     encoded_classes=[encode_char(chars,x) for x in classes]
 
-
+    lines.append("const int first_layer_input_cnt = "+str(first_layer_input_cnt)+";")   
+    lines.append("const int train_data_cnt = "+str(len(training_data))+";")           
+    lines.append("const int validation_data_cnt = "+str(len(validation_data))+";") 
+    lines.append("const int classes_cnt = "+str(27)+";")
     
     append_class_data(encoded_classes,len(encoded_classes),lines)# classes
     append_label_data(training_labels,len(training_labels),"train",lines)# training labels   

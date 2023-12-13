@@ -5,7 +5,7 @@
 
 // NN parameters, set these yourself! 
 #define LEARNING_RATE 0.008    // The learning rate used to train your network
-#define EPOCH 50             // The maximum number of epochs 
+#define EPOCH 60             // The maximum number of epochs 
 #define DATA_TYPE_FlOAT      // The data type used: Set this to DATA_TYPE_DOUBLE for higher precision. However, it is better to keep this Float if you want to submit the result via BT
 
 extern const int first_layer_input_cnt;
@@ -14,7 +14,7 @@ extern const int classes_cnt;
 // You define your network in NN_def
 // Right now, the network consists of three layers: 
 // 1. An input layer with the size of your input as defined in the variable first_layer_input_cnt in cnn_data.h 
-// 2. A hidden layer with 50 nodes
+// 2. A hidden layer with 28 nodes
 // 3. An output layer with as many classes as you defined in the variable classes_cnt in cnn_data.h 
 static const unsigned int NN_def[] = {first_layer_input_cnt, 28, classes_cnt};
 
@@ -93,12 +93,12 @@ void loop() {
   
   if (clicked){
     int i=0;
-    int i=0;
-    Serial.println("yes, we clicked the button");
-    while(i<10){
+    
+    while(i<EPOCH){
       do_training(); 
       i++;
     }
+    Serial.println("Training done");
     // Local training 
     
   }
