@@ -6,7 +6,7 @@ import numpy as np
 
 ## Image processing and detecting individual characters
 ## Each detected word will be stored as a dataset in data/test
-detect_chars('input/chars1.png', 'output')
+detect_chars('input/your_file.png', 'output')
 print("Characters detected")
 
 
