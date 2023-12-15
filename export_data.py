@@ -45,7 +45,7 @@ def encode_char(chars,x):
 
 def main():
     model = K.models.load_model('model')
-    x = model.layers[-2].output #remove the output softmax layer shape is 145 in our case
+    x = model.layers[-2].output #remove the output softmax layer 
     model = K.Model(inputs = model.input, outputs = x)
     model.summary()
     training_data=np.load("data/training/device/X_train.npy")
@@ -61,7 +61,7 @@ def main():
     validation_labels=np.load("data/training/device/y_val.npy")
     print(len(training_data))
     lines=[]
-    classes=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','-']# todo: convert to numberse
+    classes=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','-']  
     encoded_classes=[encode_char(chars,x) for x in classes]
 
     lines.append("const int first_layer_input_cnt = "+str(first_layer_input_cnt)+";")   
