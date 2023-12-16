@@ -4,8 +4,8 @@
 #include<TinyMLShield.h>
 
 // NN parameters, set these yourself! 
-#define LEARNING_RATE 0.008    // The learning rate used to train your network
-#define EPOCH 60             // The maximum number of epochs 
+#define LEARNING_RATE 0.005    // The learning rate used to train your network
+#define EPOCH 75            // The maximum number of epochs 
 #define DATA_TYPE_FlOAT      // The data type used: Set this to DATA_TYPE_DOUBLE for higher precision. However, it is better to keep this Float if you want to submit the result via BT
 
 extern const int first_layer_input_cnt;
